@@ -2,6 +2,7 @@ using EventManager.Aplicacion;
 using EventManager.Infraestructura;
 using Scalar.AspNetCore;
 using Microsoft.Extensions.Configuration;
+using Microsoft.EntityFrameworkCore;
 
 
 
@@ -27,6 +28,12 @@ builder.Services.AddCors(options =>
 var app = builder.Build();
 
 app.UseCors();
+
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    db.Database.Migrate();
+}
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
