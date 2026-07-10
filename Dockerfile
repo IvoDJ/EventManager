@@ -5,12 +5,10 @@ EXPOSE 8080
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /src
 COPY . .
-RUN dotnet restore EventManager.sln
-RUN dotnet publish src/EventManager.WebApi/EventManager.WebApi.csproj -c Release -o /app/out
+RUN dotnet restore EventManager.slnx
+RUN dotnet publish EventManager.WebApi/EventManager.WebApi.csproj -c Release -o /app/out
 
 FROM base AS final
 WORKDIR /app
 COPY --from=build /app/out .
 ENTRYPOINT ["dotnet", "EventManager.WebApi.dll"]
-
-RUN dotnet restore EventManager.sln
