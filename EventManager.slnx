@@ -2,5 +2,6 @@
   <Project Path="EventManager.Aplicacion/EventManager.Aplicacion.csproj" />
   <Project Path="EventManager.Dominio/EventManager.Dominio.csproj" />
   <Project Path="EventManager.Infraestructura/EventManager.Infraestructura.csproj" />
+  <Project Path="EventManager.Tests/EventManager.Tests.csproj" />
   <Project Path="EventManager.WebApi/EventManager.WebApi.csproj" />
 </Solution>
