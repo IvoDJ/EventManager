@@ -22,7 +22,7 @@ public class GetEventByIdUseCase(IDJRepository Repository)
             var contactDto = new ContactDto(c.Name.Value, c.Number.Value);
             contacts.Add(contactDto);
         }
-        var eventDto = new EventDto (evfound.Id, evfound.Type, evfound.Date, evfound.Location.Value, contacts, evfound.State, evfound.Duration);
+        var eventDto = new EventDto (evfound.Id, evfound.Type.ToString(), evfound.Date, evfound.Location.Value, contacts, evfound.State.ToString(), evfound.Duration);
         return new GetEventByIdResponse(eventDto);
     }
     

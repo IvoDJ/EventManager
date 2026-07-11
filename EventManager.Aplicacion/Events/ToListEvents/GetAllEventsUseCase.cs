@@ -41,7 +41,7 @@ public class GetAllEventsUseCase(IDJRepository repository)
                 var contact_dto = new ContactDto(c.Name.Value, c.Number.Value);
                 contact_dtos.Add(contact_dto);
             }
-            var event_dto = new EventDto(e.Id, e.Type, e.Date, e.Location.Value, contact_dtos, e.State, e.Duration);
+            var event_dto = new EventDto(e.Id, e.Type.ToString(), e.Date, e.Location.Value, contact_dtos, e.State.ToString(), e.Duration);
             events_dto.Add(event_dto);   
         }
         return new ToListEventsResponse(events_dto);

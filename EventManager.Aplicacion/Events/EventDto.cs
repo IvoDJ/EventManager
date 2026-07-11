@@ -6,5 +6,5 @@ using EventManager.Dominio.Events;
 using EventManager.Dominio.ValueObjects;
 using EventManager.Aplicacion.Contacts;
 
-public record EventDto(Guid id, TypeEvent type, DateTime date, String loc, 
-                        IEnumerable<ContactDto> contacts, EventState es, int duration);
+public record EventDto(Guid id, String type, DateTime date, String loc, 
+                        IEnumerable<ContactDto> contacts, String es, int duration);
