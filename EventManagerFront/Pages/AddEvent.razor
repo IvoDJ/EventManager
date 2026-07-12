@@ -1,0 +1,69 @@
+@page "/add-event"
+@using EventManagerFront.Models
+@inject HttpClient Http
+@inject NavigationManager Nav
+@inject IJSRuntime JS
+
+<h1>Agregar Evento</h1>
+
+<select @bind="type">
+    <option value="0">Quinceaños</option>
+    <option value="1">Boda</option>
+    <option value="2">Cumpleaños</option>
+    <option value="3">Bar Mitzvah</option>
+    <option value="4">Bat Mitzvah</option>
+</select>
+
+<input type="datetime-local" @bind="date" />
+<input type="text" @bind="loc" placeholder="Lugar" />
+
+<select @bind="state">
+    <option value="0">Confirmado</option>
+    <option value="1">Pendiente</option>
+    <option value="2">Cancelado</option>
+</select>
+
+<input type="number" @bind="duration" min="6" max="8" />
+
+<button @onclick="HandleSubmit">Guardar</button>
+<button @onclick='() => Nav.NavigateTo("/dashboard")'>Cancelar</button>
+
+@if (!string.IsNullOrEmpty(error))
+{
+    <p style="color:red">@error</p>
+}
+
+@code {
+    private int type = 1;
+    private DateTime date = DateTime.Now;
+    private string loc = "";
+    private int state = 1;
+    private int duration = 6;
+    private string error = "";
+
+    private async Task HandleSubmit()
+    {
+        try
+        {
+            var token = await JS.InvokeAsync<string>("storage.get", "token");
+            Http.DefaultRequestHeaders.Authorization =
+                new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+
+            var response = await Http.PostAsJsonAsync("/dj/event", new { type, date, loc, state, duration });
+
+            if (response.IsSuccessStatusCode)
+            {
+                Nav.NavigateTo("/dashboard");
+            }
+            else
+            {
+                var msg = await response.Content.ReadAsStringAsync();
+                error = msg;
+            }
+        }
+        catch
+        {
+            error = "Error al conectar con el servidor";
+        }
+    }
+}

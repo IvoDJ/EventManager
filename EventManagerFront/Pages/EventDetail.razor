@@ -1,0 +1,65 @@
+@page "/event/{id}"
+@using EventManagerFront.Models
+@inject HttpClient Http
+@inject NavigationManager Nav
+@inject IJSRuntime JS
+
+<h1>Detalle del Evento</h1>
+
+@if (evento == null)
+{
+    <p>Cargando...</p>
+}
+else
+{
+    <h2>@evento.Type</h2>
+    <p>Fecha: @evento.Date.ToLocalTime().ToString("dd/MM/yyyy")</p>
+    <p>Inicio: @evento.Date.ToLocalTime().ToString("HH:mm")</p>
+    <p>Lugar: @evento.Loc</p>
+    <p>Estado: @evento.Es</p>
+    <p>Duración: @evento.Duration horas</p>
+
+    <h3>Contactos</h3>
+    @if (evento.Contacts.Count == 0)
+    {
+        <p>No hay contactos cargados</p>
+    }
+    else
+    {
+        @foreach (var c in evento.Contacts)
+        {
+            <div>
+                <p>@c.Name — @c.Number</p>
+            </div>
+        }
+    }
+}
+
+<button @onclick='() => Nav.NavigateTo("/dashboard")'>Volver</button>
+
+@code {
+    [Parameter]
+    public string Id { get; set; } = "";
+
+    private EventDto? evento;
+
+    protected override async Task OnInitializedAsync()
+    {
+         var token = await JS.InvokeAsync<string>("storage.get", "token");
+
+    if (string.IsNullOrEmpty(token))
+    {
+        Nav.NavigateTo("/login");
+        return;
+    }
+
+    Http.DefaultRequestHeaders.Authorization =
+        new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+
+    var response = await Http.GetFromJsonAsync<GetEventByIdResponse>($"/dj/event/{Id}");
+    await JS.InvokeVoidAsync("console.log", "response:", response);
+    evento = response?.E;
+    await JS.InvokeVoidAsync("console.log", "evento:", evento);
+    }
+    
+}

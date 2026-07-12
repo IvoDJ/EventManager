@@ -1,0 +1,74 @@
+@page "/dashboard"
+@using EventManagerFront.Models
+@inject HttpClient Http
+@inject NavigationManager Nav
+@inject IJSRuntime JS
+@inject EventManagerFront.Services.AuthService AuthService
+
+
+<h1>Mis Eventos</h1>
+
+<button @onclick='() => Nav.NavigateTo("/add-event")'>Agregar Evento</button>
+
+@if (events == null)
+{
+    <p>Cargando...</p>
+}
+else if (events.Count == 0)
+{
+    <p>No tenés eventos cargados</p>
+
+}
+else
+{
+    @foreach (var e in events)
+{
+    <div>
+        <p>Fecha: @e.Date.ToLocalTime().ToString("dd/MM/yyyy")</p>
+        <button @onclick='() => Nav.NavigateTo($"/event/{e.Id}")'>Ver detalle</button>
+        <button @onclick="() => DeleteEvent(e.Id)">Eliminar</button>
+    </div>
+}
+    
+}
+
+@code {
+    private List<EventDto>? events;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var token = await JS.InvokeAsync<string>("storage.get", "token");
+        
+        if (string.IsNullOrEmpty(token))
+        {
+            Nav.NavigateTo("/login");
+            return;
+        }
+
+        Http.DefaultRequestHeaders.Authorization = 
+            new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+        AuthService.SetLoggedIn(true);
+
+
+        var response = await Http.GetFromJsonAsync<EventsResponse>("/dj/event");
+        events = response?.Events ?? new List<EventDto>();
+    }
+    private async Task DeleteEvent(Guid id)
+{
+    var token = await JS.InvokeAsync<string>("storage.get", "token");
+    Http.DefaultRequestHeaders.Authorization =
+        new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+
+    var response = await Http.DeleteAsync($"/dj/event/{id}");
+    if (response.IsSuccessStatusCode)
+    {
+        events = events?.Where(e => e.Id != id).ToList();
+    }
+}
+private async Task Logout()
+{
+    await JS.InvokeVoidAsync("storage.set", "token", "");
+    AuthService.SetLoggedIn(false);
+    Nav.NavigateTo("/login");
+}
+}
