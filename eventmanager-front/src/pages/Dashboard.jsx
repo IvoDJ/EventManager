@@ -23,6 +23,7 @@ function Dashboard() {
   return (
     <div>
       <h1>Mis Eventos</h1>
+      <button onClick={() => navigate('/add-event')}>Agregar Evento</button>
       {events.length === 0 
         ? <p>No tenés eventos cargados</p>
         : events.map(e => (
@@ -30,12 +31,15 @@ function Dashboard() {
               <h3>{e.type}</h3>
               <p>Fecha: {new Date(e.date).toLocaleDateString()}</p>
               <p>Lugar: {e.loc}</p>
-              <p>Estado: {e.state}</p>
+              <p>Estado: {e.es}</p>
+              <p>Duracion: {e.duration}</p>
             </div>
           ))
       }
     </div>
   )
+
+  
 }
 
 export default Dashboard
