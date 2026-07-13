@@ -5,32 +5,50 @@
 @inject IJSRuntime JS
 @inject EventManagerFront.Services.AuthService AuthService
 
-
-<h1>Mis Eventos</h1>
-
-<button @onclick='() => Nav.NavigateTo("/add-event")'>Agregar Evento</button>
-
-@if (events == null)
-{
-    <p>Cargando...</p>
-}
-else if (events.Count == 0)
-{
-    <p>No tenés eventos cargados</p>
-
-}
-else
-{
-    @foreach (var e in events)
-{
-    <div>
-        <p>Fecha: @e.Date.ToLocalTime().ToString("dd/MM/yyyy")</p>
-        <button @onclick='() => Nav.NavigateTo($"/event/{e.Id}")'>Ver detalle</button>
-        <button @onclick="() => DeleteEvent(e.Id)">Eliminar</button>
+<div class="dashboard-container">
+    <div class="dashboard-header">
+        <h1>Mis Eventos</h1>
+        <button class="btn-small" @onclick='() => Nav.NavigateTo("/add-event")'>
+            + Agregar Evento
+        </button>
     </div>
-}
-    
-}
+
+    @if (events == null)
+    {
+        <p class="text-muted">Cargando...</p>
+    }
+    else if (events.Count == 0)
+    {
+        <p class="text-muted">No tenés eventos cargados</p>
+    }
+    else
+    {
+        <div class="events-grid">
+            @foreach (var e in events)
+            {
+                <div class="event-card">
+                    <div class="event-card-header">
+                        <h3>@e.Type</h3>
+                    </div>
+                    <div class="event-card-body">
+                        <p>📅 @e.Date.ToLocalTime().ToString("dd/MM/yyyy")</p>
+                        <p>📍 @e.Loc</p>
+                    </div>
+                    <div class="event-card-footer">
+                        <button class="btn-detail" 
+                                @onclick='() => Nav.NavigateTo($"/event/{e.Id}")'>
+                            Ver detalle
+                        </button>
+                        <button class="btn-delete" 
+                                @onclick="() => DeleteEvent(e.Id)">
+                            Eliminar
+                        </button>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>
 
 @code {
     private List<EventDto>? events;

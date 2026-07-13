@@ -3,29 +3,34 @@
 @inject HttpClient Http
 @inject NavigationManager Nav
 
-<h1>Registro de Usuario</h1>
+<div class="login-container">
+    <div class="login-card">
+        <h1>Event Manager</h1>
+        <h2>Registro de DJ</h2>
 
-<input @bind="name" placeholder="Nombre artístico" />
-<input @bind="username" placeholder="Usuario" />
-<input type="password" @bind="password" placeholder="Contraseña" />
-<button @onclick="HandleRegister">Registrarse</button>
-<button @onclick='() => Nav.NavigateTo("/login")'>Ya tengo cuenta</button>
+        <input class="login-input" @bind="name" placeholder="Nombre artístico" />
+        <input class="login-input" @bind="username" placeholder="Usuario" />
+        <input class="login-input" type="password" @bind="password" placeholder="Contraseña" />
 
-@if (!string.IsNullOrEmpty(error))
-{
-    <p style="color:red">@error</p>
-}
-@if (!string.IsNullOrEmpty(success))
-{
-    <p style="color:green">@success</p>
-}
+        <button class="btn-login" @onclick="HandleRegister">Registrarse</button>
+
+        <div class="register-link">
+            <span>¿Ya tenés cuenta?</span>
+            <button class="btn-link" @onclick='() => Nav.NavigateTo("/login")'>Iniciá sesión</button>
+        </div>
+
+        @if (!string.IsNullOrEmpty(error))
+        {
+            <p class="error-msg">@error</p>
+        }
+    </div>
+</div>
 
 @code {
     private string name = "";
     private string username = "";
     private string password = "";
     private string error = "";
-    private string success = "";
 
     private async Task HandleRegister()
     {
@@ -34,7 +39,6 @@
             var response = await Http.PostAsJsonAsync("/dj", new { name, username, password });
             if (response.IsSuccessStatusCode)
             {
-                success = "Usuario registrado correctamente";
                 Nav.NavigateTo("/login");
             }
             else

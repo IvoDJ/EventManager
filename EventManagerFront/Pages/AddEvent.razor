@@ -4,34 +4,38 @@
 @inject NavigationManager Nav
 @inject IJSRuntime JS
 
-<h1>Agregar Evento</h1>
+<div class="login-container">
+    <div class="login-card" style="width: 420px;">
+        <h1>Agregar Evento</h1>
 
-<select @bind="type">
-    <option value="0">Quinceaños</option>
-    <option value="1">Boda</option>
-    <option value="2">Cumpleaños</option>
-    <option value="3">Bar Mitzvah</option>
-    <option value="4">Bat Mitzvah</option>
-</select>
+        <select class="login-input" @bind="type">
+            <option value="0">Quinceaños</option>
+            <option value="1">Boda</option>
+            <option value="2">Cumpleaños</option>
+            <option value="3">Bar Mitzvah</option>
+            <option value="4">Bat Mitzvah</option>
+        </select>
 
-<input type="datetime-local" @bind="date" />
-<input type="text" @bind="loc" placeholder="Lugar" />
+        <input class="login-input" type="datetime-local" @bind="date" />
+        <input class="login-input" type="text" @bind="loc" placeholder="Lugar" />
 
-<select @bind="state">
-    <option value="0">Confirmado</option>
-    <option value="1">Pendiente</option>
-    <option value="2">Cancelado</option>
-</select>
+        <select class="login-input" @bind="state">
+            <option value="0">Confirmado</option>
+            <option value="1">Pendiente</option>
+            <option value="2">Cancelado</option>
+        </select>
 
-<input type="number" @bind="duration" min="6" max="8" />
+        <input class="login-input" type="number" @bind="duration" min="6" max="8" placeholder="Duración (6-8 horas)" />
 
-<button @onclick="HandleSubmit">Guardar</button>
-<button @onclick='() => Nav.NavigateTo("/dashboard")'>Cancelar</button>
+        <button class="btn-login" @onclick="HandleSubmit">Guardar</button>
+        <button class="btn-link" @onclick='() => Nav.NavigateTo("/dashboard")'>Cancelar</button>
 
-@if (!string.IsNullOrEmpty(error))
-{
-    <p style="color:red">@error</p>
-}
+        @if (!string.IsNullOrEmpty(error))
+        {
+            <p class="error-msg">@error</p>
+        }
+    </div>
+</div>
 
 @code {
     private int type = 1;
