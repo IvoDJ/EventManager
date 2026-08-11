@@ -4,62 +4,126 @@
 @inject NavigationManager Nav
 @inject IJSRuntime JS
 
-<h1>Detalle del Evento</h1>
+<div class="detail-container">
+    <button class="btn-small" @onclick='() => Nav.NavigateTo("/dashboard")'>← Volver</button>
 
-@if (evento == null)
-{
-    <p>Cargando...</p>
-}
-else
-{
-    <h2>@evento.Type</h2>
-    <p>Fecha: @evento.Date.ToLocalTime().ToString("dd/MM/yyyy")</p>
-    <p>Inicio: @evento.Date.ToLocalTime().ToString("HH:mm")</p>
-    <p>Lugar: @evento.Loc</p>
-    <p>Estado: @evento.Es</p>
-    <p>Duración: @evento.Duration horas</p>
-
-    <h3>Contactos</h3>
-    @if (evento.Contacts.Count == 0)
+    @if (evento == null)
     {
-        <p>No hay contactos cargados</p>
+        <p>Cargando...</p>
     }
     else
     {
-        @foreach (var c in evento.Contacts)
-        {
-            <div>
-                <p>@c.Name — @c.Number</p>
+        <div class="detail-card">
+            <div class="detail-header">
+                <h1>@evento.Type</h1>
+                <span class="event-state">@evento.Es</span>
             </div>
-        }
-    }
-}
 
-<button @onclick='() => Nav.NavigateTo("/dashboard")'>Volver</button>
+            <div class="detail-info">
+                <div class="detail-item">
+                    <span class="detail-label">📅 Fecha</span>
+                    <span>@evento.Date.ToLocalTime().ToString("dd/MM/yyyy")</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">🕐 Inicio</span>
+                    <span>@evento.Date.ToLocalTime().ToString("HH:mm")</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">📍 Lugar</span>
+                    <span>@evento.Loc</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">⏱ Duración</span>
+                    <span>@evento.Duration horas</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="detail-card">
+            <h3>Contactos</h3>
+            @if (evento.Contacts.Count == 0)
+            {
+                <p style="color: rgba(255,255,255,0.5)">No hay contactos cargados</p>
+            }
+            else
+            {
+                @foreach (var c in evento.Contacts)
+                {
+                    <div class="contact-item">
+                        <span>👤 @c.Name</span>
+                        <span>📞 @c.Number</span>
+                    </div>
+                }
+            }
+
+            <div style="margin-top: 1rem; display: flex; flex-direction: column; gap: 0.5rem;">
+                <input class="login-input" @bind="newContactName" placeholder="Nombre" />
+                <input class="login-input" @bind="newContactNumber" placeholder="Número (ej: 1123456789)" />
+                <button class="btn-small" @onclick="AddContact">+ Agregar Contacto</button>
+                @if (!string.IsNullOrEmpty(contactError))
+                {
+                    <p class="error-msg">@contactError</p>
+                }
+            </div>
+        </div>
+    }
+</div>
 
 @code {
     [Parameter]
     public string Id { get; set; } = "";
 
     private EventDto? evento;
+    private string newContactName = "";
+    private string newContactNumber = "";
+    private string contactError = "";
 
     protected override async Task OnInitializedAsync()
     {
-         var token = await JS.InvokeAsync<string>("storage.get", "token");
+        var token = await JS.InvokeAsync<string>("storage.get", "token");
 
-    if (string.IsNullOrEmpty(token))
+        if (string.IsNullOrEmpty(token))
+        {
+            Nav.NavigateTo("/login");
+            return;
+        }
+
+        Http.DefaultRequestHeaders.Authorization =
+            new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+
+        var response = await Http.GetFromJsonAsync<GetEventByIdResponse>($"/dj/event/{Id}");
+        evento = response?.E;
+    }
+
+    private async Task AddContact()
     {
-        Nav.NavigateTo("/login");
-        return;
-    }
+        try
+        {
+            var token = await JS.InvokeAsync<string>("storage.get", "token");
+            Http.DefaultRequestHeaders.Authorization =
+                new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
 
-    Http.DefaultRequestHeaders.Authorization =
-        new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+            var response = await Http.PostAsJsonAsync(
+                $"/dj/event/{Id}/contact",
+                new { name = newContactName, number = newContactNumber }
+            );
 
-    var response = await Http.GetFromJsonAsync<GetEventByIdResponse>($"/dj/event/{Id}");
-    await JS.InvokeVoidAsync("console.log", "response:", response);
-    evento = response?.E;
-    await JS.InvokeVoidAsync("console.log", "evento:", evento);
+            if (response.IsSuccessStatusCode)
+            {
+                newContactName = "";
+                newContactNumber = "";
+                contactError = "";
+                var updated = await Http.GetFromJsonAsync<GetEventByIdResponse>($"/dj/event/{Id}");
+                evento = updated?.E;
+            }
+            else
+            {
+                contactError = await response.Content.ReadAsStringAsync();
+            }
+        }
+        catch
+        {
+            contactError = "Error al agregar contacto";
+        }
     }
-    
 }

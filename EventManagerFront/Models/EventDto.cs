@@ -12,4 +12,6 @@ public class EventDto
     public string Es { get; set; } = "";
     public int Duration { get; set; }
     public List<ContactDto> Contacts { get; set; } = new();
+    public List<SongDto> Songs { get; set; } = new();
+
 }
